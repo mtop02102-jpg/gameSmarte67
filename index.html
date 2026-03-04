@@ -2,89 +2,111 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>СВОЯ ИГРА: ULTIMATE CONSTRUCTOR</title>
+    <title>СВОЯ ИГРА: PREMIUM EDITION</title>
     <style>
-        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #000080; color: white; font-family: 'Segoe UI', sans-serif; }
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: #000833; color: white; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        /* Экраны */
-        .screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #0000a0 0%, #000040 100%); flex-direction: column; align-items: center; justify-content: center; z-index: 1000; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-        .menu-btn { background: gold; color: black; padding: 15px 30px; font-size: 24px; font-weight: bold; border: none; border-radius: 50px; cursor: pointer; margin: 10px; width: 380px; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
-        .menu-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px gold; }
+        /* ОБЩИЙ ФОН ДЛЯ ВСЕХ ЭКРАНОВ */
+        .screen, #overlay { 
+            background: radial-gradient(circle at center, #001a66 0%, #000833 100%);
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            z-index: 1000; overflow-y: auto; padding: 20px; box-sizing: border-box; 
+        }
+
+        /* КНОПКИ МЕНЮ */
+        .menu-btn { 
+            background: linear-gradient(180deg, #ffd700 0%, #b8860b 100%); 
+            color: #000; padding: 15px 40px; font-size: 26px; font-weight: bold; 
+            border: none; border-radius: 50px; cursor: pointer; margin: 12px; 
+            width: 400px; transition: 0.3s; box-shadow: 0 5px 20px rgba(0,0,0,0.6); 
+        }
+        .menu-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255, 215, 0, 0.4); }
+
+        /* ИГРОВОЕ ПОЛЕ */
+        #game-screen { display: none; width: 100%; height: 100%; background: #000833; z-index: 500; }
+        #board { display: grid; gap: 12px; padding: 25px; width: 95%; max-width: 1800px; margin: auto; }
         
-        /* Игровое поле */
-        #game-screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; position: relative; background: #000080; }
-        #board { display: grid; gap: 10px; padding: 20px; width: 95%; max-width: 1750px; }
-        .cell { background: #0606ed; border: 3px solid gold; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; transition: 0.2s; text-align: center; font-size: 2.5vw; }
-        .cell:hover { background: #1e90ff; }
-        .category { background: #0000cd; font-size: 1.3vw; cursor: default; border-color: #4169e1; padding: 10px; display: flex; align-items: center; justify-content: center; }
-        .cell.used { background: #000033 !important; color: #000066 !important; border-color: #000044 !important; pointer-events: none; }
+        .cell { 
+            background: linear-gradient(145deg, #0606ed, #0000a0);
+            border: 2px solid #ffd700; display: flex; align-items: center; 
+            justify-content: center; font-weight: bold; cursor: pointer; 
+            transition: 0.2s; text-align: center; font-size: 3vw;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .cell:hover { background: #1e90ff; border-color: #fff; }
+        .category { background: #000080; font-size: 1.4vw; cursor: default; border-color: #4169e1; text-transform: uppercase; letter-spacing: 1px; }
+        .cell.used { background: #000520 !important; color: #001a66 !important; border-color: #001a66 !important; pointer-events: none; box-shadow: none; }
 
-        /* Настройки и Редактор */
-        .settings-block { background: rgba(0,0,0,0.6); padding: 20px; border-radius: 15px; border: 1px solid gold; margin-bottom: 15px; width: 90%; max-width: 900px; }
-        .editor-container { background: white; color: black; padding: 25px; border-radius: 15px; width: 95%; max-height: 85vh; overflow-y: auto; text-align: left; }
-        input, select { padding: 8px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; margin: 5px; }
+        /* СТИЛЬ НАСТРОЕК И РЕДАКТОРА (Стеклянный эффект) */
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 30px; border-radius: 20px; width: 90%; max-width: 1000px;
+        }
+        .editor-container { background: #eee; color: #333; padding: 25px; border-radius: 15px; width: 95%; max-height: 85vh; overflow-y: auto; }
 
-        /* Окно вопроса */
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); flex-direction: column; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
-        #question-text { font-size: 4vw; text-align: center; margin-bottom: 20px; max-width: 85%; }
-        #answer-text { font-size: 3vw; color: gold; margin-bottom: 20px; display: none; font-weight: bold; border-top: 2px solid gold; padding-top: 10px; }
-        .controls { display: none; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .btn-score { padding: 12px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; }
+        /* ОКНО ВОПРОСА */
+        #question-text { font-size: 4.5vw; text-align: center; margin-bottom: 30px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+        #answer-text { font-size: 3.5vw; color: #ffd700; margin-bottom: 30px; display: none; font-weight: bold; }
+        
+        /* ТАБЛО */
+        .score-board { display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap; width: 100%; }
+        .team-badge { padding: 15px 30px; border-radius: 15px; border: 2px solid rgba(255,255,255,0.5); text-align: center; min-width: 160px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .score-val { font-size: 40px; font-weight: bold; display: block; margin-top: 5px; }
 
-        /* Табло */
-        .score-board { display: flex; gap: 15px; justify-content: center; margin-top: 30px; flex-wrap: wrap; width: 100%; }
-        .team-badge { padding: 10px 25px; border-radius: 12px; border: 2px solid white; text-align: center; min-width: 140px; }
-        .score-val { font-size: 35px; font-weight: bold; display: block; }
+        input, select { padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin: 5px; font-size: 16px; }
     </style>
 </head>
 <body>
 
-    <!-- Звуки (нужно положить файлы в папку или заменить на ссылки) -->
     <audio id="snd-intro" src="intro.mp3" loop></audio>
     <audio id="snd-think" src="think.mp3"></audio>
     <audio id="snd-correct" src="correct.mp3"></audio>
 
     <!-- МЕНЮ -->
     <div id="menu-screen" class="screen" style="display: flex;">
-        <h1 style="font-size: 80px; color: gold; margin-bottom: 40px; text-shadow: 4px 4px 10px black;">СВОЯ ИГРА Йоу!</h1>
+        <h1 style="font-size: 100px; color: gold; margin-bottom: 50px; text-shadow: 0 0 30px rgba(255,215,0,0.5);">СВОЯ ИГРА</h1>
         <button class="menu-btn" onclick="continueGame()" id="cont-btn" style="display:none">ПРОДОЛЖИТЬ</button>
-        <button class="menu-btn" onclick="showSettings()">ПАРАМЕТРЫ СЕТКИ И КОМАНД</button>
-        <button class="menu-btn" onclick="showEditor()">РЕДАКТОР (Вопросы и Баллы) ✏️</button>
+        <button class="menu-btn" onclick="showSettings()">НАСТРОЙКИ</button>
+        <button class="menu-btn" onclick="showEditor()">РЕДАКТОР ✏️</button>
         <button class="menu-btn" onclick="startNewGame()">ИГРАТЬ!</button>
     </div>
 
-    <!-- НАСТРОЙКИ СЕТКИ -->
+    <!-- НАСТРОЙКИ -->
     <div id="settings-screen" class="screen">
-        <h1>Настройка структуры</h1>
-        <div class="settings-block">
-            <h3>1. Размер поля</h3>
-            Тем (строк): <input type="number" id="cfg-cats" value="3" min="1" max="10"> 
-            Вопросов (столбцов): <input type="number" id="cfg-qpc" value="5" min="1" max="6">
+        <div class="glass-panel">
+            <h1 style="color:gold">Параметры игры</h1>
+            <div style="margin-bottom:20px">
+                Тем: <input type="number" id="cfg-cats" value="3" min="1" max="10"> 
+                Вопросов: <input type="number" id="cfg-qpc" value="5" min="1" max="6">
+            </div>
+            <hr border="0" style="border-top:1px solid rgba(255,255,255,0.2)">
+            <h3 style="color:gold">Команды (1-6)</h3>
+            <select id="team-count" onchange="generateTeamInputs()" style="width:100px"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option></select>
+            <div id="teams-config-container" style="margin-top:15px; display: flex; flex-wrap: wrap; justify-content: center;"></div>
+            <br>
+            <button class="menu-btn" onclick="saveAllSettings()" style="width:250px; background: #28a745; color: white;">СОХРАНИТЬ</button>
         </div>
-        <div class="settings-block">
-            <h3>2. Команды</h3>
-            Кол-во: <select id="team-count" onchange="generateTeamInputs()"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option></select>
-            <div id="teams-config-container" style="margin-top:15px;"></div>
-        </div>
-        <button class="menu-btn" onclick="saveAllSettings()" style="background:#28a745; color:white;">СОХРАНИТЬ СТРУКТУРУ</button>
     </div>
 
     <!-- РЕДАКТОР -->
     <div id="editor-screen" class="screen">
         <div class="editor-container">
-            <h2>Редактор: Темы, Вопросы и Баллы</h2>
+            <h2 style="text-align:center">Ввод вопросов и баллов</h2>
             <div id="editor-fields"></div>
             <div style="margin-top:20px; text-align:center;">
-                <button class="menu-btn" onclick="saveQuestions()" style="background:green; color:white; width:250px;">СОХРАНИТЬ ВСЁ</button>
-                <button class="menu-btn" onclick="closeEditor()" style="background:#555; color:white; width:250px;">ОТМЕНА</button>
+                <button class="menu-btn" onclick="saveQuestions()" style="background:green; color:white; width:220px; font-size:18px">СОХРАНИТЬ</button>
+                <button class="menu-btn" onclick="closeEditor()" style="background:#555; color:white; width:220px; font-size:18px">ОТМЕНА</button>
             </div>
         </div>
     </div>
 
-    <!-- ИГРОВОЙ ЭКРАН -->
-    <div id="game-screen" class="screen" style="background:#000080;">
-        <button onclick="openMenu()" style="position:fixed; top:20px; right:20px; padding:15px; background:gold; border:none; font-weight:bold; cursor:pointer; border-radius:10px; z-index:100;">МЕНЮ</button>
+    <!-- ИГРА -->
+    <div id="game-screen" class="screen" style="background:#000833; display:none; justify-content: flex-start; padding-top: 50px;">
+        <button onclick="openMenu()" style="position:fixed; top:20px; right:20px; padding:15px 25px; background:gold; border:none; font-weight:bold; cursor:pointer; border-radius:10px; z-index:1000; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">МЕНЮ</button>
         <div id="board"></div>
         <div class="score-board" id="score-board"></div>
     </div>
@@ -94,8 +116,8 @@
         <div id="question-text">Текст вопроса</div>
         <div id="answer-text">ОТВЕТ</div>
         <button id="show-btn" class="menu-btn" onclick="showAnswer()">ПОКАЗАТЬ ОТВЕТ</button>
-        <div id="admin-controls" class="controls"></div>
-        <button id="skip-btn" class="menu-btn" style="background:#555; width:300px; display:none; color:white;" onclick="closeQuestion()">Никто не ответил</button>
+        <div id="admin-controls" style="display:none; grid-template-columns: repeat(3, 1fr); gap: 15px;"></div>
+        <button id="skip-btn" class="menu-btn" style="background:#444; width:280px; display:none; color:white; font-size: 18px; margin-top:20px" onclick="closeQuestion()">Никто не ответил</button>
     </div>
 
     <script>
@@ -109,41 +131,29 @@
             gameData = [];
             for(let r=0; r<config.cats; r++) {
                 let row = { cat: "ТЕМА " + (r+1), qs: [] };
-                for(let c=0; c<config.qPerCat; c++) {
-                    row.qs.push({ q: "Текст вопроса", a: "Ответ", p: (c+1)*100 });
-                }
+                for(let c=0; c<config.qPerCat; c++) { row.qs.push({ q: "Вопрос", a: "Ответ", p: (c+1)*100 }); }
                 gameData.push(row);
             }
         }
 
-        function showSettings() {
-            document.getElementById('menu-screen').style.display='none';
-            document.getElementById('settings-screen').style.display='flex';
-            generateTeamInputs();
-        }
-
+        function showSettings() { document.getElementById('menu-screen').style.display='none'; document.getElementById('settings-screen').style.display='flex'; generateTeamInputs(); }
+        
         function generateTeamInputs() {
             const c = document.getElementById('team-count').value;
             const res = document.getElementById('teams-config-container'); res.innerHTML = '';
             for(let i=1; i<=c; i++) {
-                res.innerHTML += `<div><input type="text" id="tn${i}" value="Команда ${i}"> <input type="color" id="tc${i}" value="${['#28a745','#007bff','#fd7e14','#e83e8c','#6f42c1','#17a2b8'][i-1]}"></div>`;
+                res.innerHTML += `<div style="margin:5px; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px;"><input type="text" id="tn${i}" value="Команда ${i}" style="width:120px"> <input type="color" id="tc${i}" value="${['#28a745','#007bff','#fd7e14','#e83e8c','#6f42c1','#17a2b8'][i-1]}"></div>`;
             }
         }
 
         function saveAllSettings() {
-            const newCats = parseInt(document.getElementById('cfg-cats').value);
-            const newQpc = parseInt(document.getElementById('cfg-qpc').value);
-            if(newCats != config.cats || newQpc != config.qPerCat) {
-                config.cats = newCats; config.qPerCat = newQpc;
-                generateEmptyData();
-            }
+            const nc = parseInt(document.getElementById('cfg-cats').value);
+            const nq = parseInt(document.getElementById('cfg-qpc').value);
+            if(nc != config.cats || nq != config.qPerCat) { config.cats = nc; config.qPerCat = nq; generateEmptyData(); }
             const tc = document.getElementById('team-count').value;
             teams = [];
-            for(let i=1; i<=tc; i++) {
-                teams.push({ name: document.getElementById('tn'+i).value, color: document.getElementById('tc'+i).value, score: 0 });
-            }
-            document.getElementById('settings-screen').style.display='none';
-            document.getElementById('menu-screen').style.display='flex';
+            for(let i=1; i<=tc; i++) { teams.push({ name: document.getElementById('tn'+i).value, color: document.getElementById('tc'+i).value, score: 0 }); }
+            document.getElementById('settings-screen').style.display='none'; document.getElementById('menu-screen').style.display='flex';
         }
 
         function showEditor() {
@@ -152,11 +162,9 @@
             document.getElementById('editor-screen').style.display='flex';
             const f = document.getElementById('editor-fields'); f.innerHTML = '';
             gameData.forEach((row, r) => {
-                let h = `<div style="border-bottom:2px solid gold; padding:15px; color:black;"><b>Тема ${r+1}:</b> <input type="text" id="ecat-${r}" value="${row.cat}"><br>`;
+                let h = `<div style="border-bottom:1px solid #ccc; padding:15px;"><b>Тема ${r+1}:</b> <input type="text" id="ecat-${r}" value="${row.cat}"><br>`;
                 row.qs.forEach((item, c) => {
-                    h += `<div style="margin:8px 0;">Вопрос ${c+1} | Баллы: <input type="number" style="width:70px" id="ep-${r}-${c}" value="${item.p}"> 
-                          В: <input type="text" style="width:35%" id="eq-${r}-${c}" value="${item.q}"> 
-                          О: <input type="text" style="width:25%" id="ea-${r}-${c}" value="${item.a}"></div>`;
+                    h += `<div style="margin:5px 0;">#${c+1} | Баллы: <input type="number" style="width:60px" id="ep-${r}-${c}" value="${item.p}"> В: <input type="text" style="width:40%" id="eq-${r}-${c}" value="${item.q}"> О: <input type="text" style="width:25%" id="ea-${r}-${c}" value="${item.a}"></div>`;
                 });
                 f.innerHTML += h + `</div>`;
             });
@@ -171,7 +179,7 @@
                     item.a = document.getElementById(`ea-${r}-${c}`).value;
                 });
             });
-            localStorage.setItem('myUltimateGameData', JSON.stringify(gameData));
+            localStorage.setItem('myPremData', JSON.stringify(gameData));
             closeEditor();
         }
 
@@ -179,7 +187,6 @@
 
         function startNewGame() {
             if(teams.length === 0) saveAllSettings();
-            if(gameData.length === 0) generateEmptyData();
             used.clear(); teams.forEach(t => t.score = 0);
             document.getElementById('menu-screen').style.display='none';
             document.getElementById('game-screen').style.display='flex';
@@ -190,16 +197,14 @@
         function initBoard() {
             const b = document.getElementById('board'); b.innerHTML = '';
             b.style.gridTemplateColumns = `240px repeat(${config.qPerCat}, 1fr)`;
-            const h = Math.floor(75 / config.cats);
-            gameData.forEach((row, rIdx) => {
+            const h = Math.floor(70 / config.cats);
+            gameData.forEach((row, r) => {
                 const cat = document.createElement('div'); cat.className='cell category'; cat.innerText=row.cat; cat.style.height=h+'vh'; b.appendChild(cat);
-                row.qs.forEach((item, cIdx) => {
+                row.qs.forEach((item, c) => {
                     const cell = document.createElement('div'); cell.className='cell'; cell.style.height=h+'vh';
                     cell.innerText = item.p;
-                    const id = rIdx+'-'+cIdx; if(used.has(id)) cell.classList.add('used');
-                    cell.onclick = () => { if(!cell.classList.contains('used')){ 
-                        curPts=item.p; used.add(id); cell.classList.add('used'); openQ(item); 
-                    }};
+                    const id = r+'-'+c; if(used.has(id)) cell.classList.add('used');
+                    cell.onclick = () => { if(!cell.classList.contains('used')){ curPts=item.p; used.add(id); cell.classList.add('used'); openQ(item); }};
                     b.appendChild(cell);
                 });
             });
@@ -215,7 +220,8 @@
             document.getElementById('snd-think').play().catch(()=>{});
             const ctrl = document.getElementById('admin-controls'); ctrl.innerHTML = '';
             teams.forEach((t, i) => {
-                const btn = document.createElement('button'); btn.className='btn-score'; btn.style.background=t.color; btn.innerText="+ "+t.name;
+                const btn = document.createElement('button'); btn.style.cssText = `background:${t.color}; color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;`;
+                btn.innerText = "+ " + t.name;
                 btn.onclick = () => { teams[i].score += curPts; document.getElementById('snd-correct').play().catch(()=>{}); updateSB(); closeQuestion(); };
                 ctrl.appendChild(btn);
             });
@@ -235,11 +241,11 @@
             teams.forEach(t => { sb.innerHTML += `<div class="team-badge" style="background:${t.color}">${t.name}<span class="score-val">${t.score}</span></div>`; });
         }
 
-        function openMenu() { document.getElementById('game-screen').style.display='none'; document.getElementById('menu-screen').style.display='flex'; document.getElementById('cont-btn').style.display='block'; document.getElementById('snd-intro').play().catch(()=>{}); }
-        function continueGame() { document.getElementById('menu-screen').style.display='none'; document.getElementById('game-screen').style.display='flex'; document.getElementById('snd-intro').pause(); }
+        function openMenu() { document.getElementById('game-screen').style.display='none'; document.getElementById('menu-screen').style.display='flex'; document.getElementById('cont-btn').style.display='block'; }
+        function continueGame() { document.getElementById('menu-screen').style.display='none'; document.getElementById('game-screen').style.display='flex'; }
         function closeQuestion() { document.getElementById('overlay').style.display='none'; document.getElementById('snd-think').pause(); }
 
-        const saved = localStorage.getItem('myUltimateGameData');
+        const saved = localStorage.getItem('myPremData');
         if(saved) gameData = JSON.parse(saved);
     </script>
 </body>
