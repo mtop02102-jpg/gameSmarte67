@@ -2,153 +2,55 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>СВОЯ ИГРА: PC MAX</title>
+    <title>СВОЯ ИГРА</title>
     <style>
-        html, body { height: 100%; margin: 0; padding: 0; background: #000520; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        
-        .screen, #overlay { 
-            background: radial-gradient(circle at center, #001a66 0%, #000520 100%);
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            flex-direction: column; align-items: center; justify-content: center; z-index: 1000; padding: 20px; box-sizing: border-box; 
-        }
-
-        .menu-btn { 
-            background: gold; color: #000; padding: 12px 25px; font-size: 18px; font-weight: 800; 
-            border: none; border-radius: 6px; cursor: pointer; margin: 8px; width: 100%; max-width: 320px;
-            transition: 0.2s; text-transform: uppercase;
-        }
-        .menu-btn:hover { transform: scale(1.05); background: #fff; box-shadow: 0 0 20px gold; }
-
-        /* ИГРОВОЕ ПОЛЕ */
-        #game-screen { display: none; }
-        #board-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; overflow: hidden; }
-        
-        #board { 
-            display: grid; 
-            gap: 15px; 
-            padding: 20px; 
-            margin: auto;
-            max-width: 95vw;
-            max-height: 70vh;
-        }
-        
-        .cell { 
-            background: linear-gradient(145deg, #0000ff, #00008b); 
-            border: 3px solid gold; 
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: 900; cursor: pointer; 
-            font-size: 50px; 
-            min-width: 180px; 
-            min-height: 110px; 
-            padding: 15px;
-            transition: 0.2s;
-        }
-        .cell:hover { background: #1e90ff; transform: scale(1.03); z-index: 10; }
-        
-        .category { 
-            background: #00008b; 
-            font-size: 22px; 
-            cursor: default; 
-            border-color: #4169e1; 
-            text-transform: uppercase; 
-            width: 280px; 
-            text-align: center; 
-            font-weight: bold;
-            display: flex; align-items: center; justify-content: center;
-            border: 3px solid #4169e1;
-        }
+        body { background: #000520; color: white; font-family: sans-serif; margin: 20px; text-align: center; }
+        #board { display: grid; gap: 10px; margin: 20px auto; max-width: 95vw; }
+        .cell { background: #0000ff; border: 2px solid gold; padding: 20px; font-size: 32px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; min-height: 80px; }
+        .category { background: #00008b; font-size: 18px; cursor: default; border-color: #4169e1; text-transform: uppercase; }
         .cell.used { background: #000b30 !important; color: #1a2a6c !important; border-color: #1a2a6c !important; pointer-events: none; }
-
-        /* ТАБЛО КОМАНД */
-        .score-board { 
-            display: flex; gap: 30px; justify-content: center; padding: 20px; 
-            background: rgba(0,0,0,0.5); width: 100%; border-top: 4px solid gold; 
-        }
-        .team-badge { display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 8px; border: 1px solid #4169e1; min-width: 160px; }
-        .score-name { font-size: 18px; font-weight: bold; color: #fff; text-transform: uppercase; margin-bottom: 5px; }
-        .score-val { font-size: 48px; font-weight: 900; color: gold; line-height: 1; text-shadow: 0 0 15px rgba(255,215,0,0.6); }
-        .score-controls { display: flex; gap: 8px; margin-top: 8px; }
-        .btn-sm { background: gold; border: none; font-weight: bold; padding: 4px 10px; cursor: pointer; border-radius: 3px; font-size: 14px; }
-        .btn-sm:hover { background: #fff; }
-
-        /* ОКНО ВОПРОСА */
-        #question-text { font-size: 44px; text-align: center; margin-bottom: 35px; max-width: 1100px; line-height: 1.3; }
-        #answer-text { font-size: 38px; color: gold; margin-bottom: 30px; font-weight: bold; border-top: 3px solid gold; padding-top: 20px; text-align: center; letter-spacing: 2px; }
-
-        /* КНОПКИ НАЧИСЛЕНИЯ В ВОПРОСЕ */
-        .admin-section { display: flex; gap: 15px; margin-top: 15px; background: rgba(0,0,0,0.4); padding: 10px 20px; border-radius: 8px; border: 1px solid rgba(255,215,0,0.3); }
-        .admin-column { display: flex; flex-direction: column; gap: 5px; align-items: center; }
-        .admin-team-title { font-size: 14px; font-weight: bold; color: #fff; }
-        .admin-btn { border: none; font-weight: bold; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-size: 14px; color: #fff; min-width: 90px; }
+        .score-board { display: flex; gap: 20px; justify-content: center; margin-top: 30px; }
+        .team-badge { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px solid gold; min-width: 150px; }
+        .score-val { font-size: 36px; font-weight: bold; color: gold; margin: 5px 0; }
+        .btn-sm { background: gold; border: none; font-weight: bold; padding: 5px 10px; cursor: pointer; margin: 2px; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        #question-text { font-size: 36px; margin-bottom: 20px; max-width: 900px; }
+        #answer-text { font-size: 28px; color: gold; margin-bottom: 20px; letter-spacing: 2px; }
+        .menu-btn { background: gold; color: #000; padding: 10px 20px; font-size: 18px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .admin-section { display: flex; gap: 10px; margin-top: 25px; }
+        .admin-btn { border: none; font-weight: bold; padding: 8px 12px; cursor: pointer; color: #fff; }
         .admin-btn.plus { background: #27ae60; }
         .admin-btn.minus { background: #c0392b; }
-        .admin-btn:hover { opacity: 0.9; transform: scale(1.05); }
     </style>
 </head>
 <body>
 
-    <!-- ЭКРАН СТАРТА -->
-    <div id="start-overlay" class="screen" style="display:flex;">
-        <h1 style="color:gold; font-size:80px; text-shadow: 0 0 30px gold;">СВОЯ ИГРА</h1>
-        <button class="menu-btn" onclick="unlockAudio()">ЗАПУСТИТЬ</button>
-    </div>
+    <h1>СВОЯ ИГРА</h1>
 
-    <!-- ГЛАВНОЕ МЕНЮ -->
-    <div id="menu-screen" class="screen">
-        <button class="menu-btn" onclick="continueGame()" id="cont-btn" style="display:none">ПРОДОЛЖИТЬ</button>
-        <button class="menu-btn" onclick="startNewGame()" style="background:#27ae60; color:#fff;">ИГРАТЬ!</button>
-    </div>
+    <!-- ИГРОВОЕ ПОЛЕ -->
+    <div id="board"></div>
 
-    <!-- ИГРОВОЙ ЭКРАН -->
-    <div id="game-screen" class="screen">
-        <button onclick="openMenu()" style="position:fixed; top:20px; right:20px; padding:10px 20px; background:gold; border:none; font-weight:bold; cursor:pointer; border-radius:5px; z-index:200;">МЕНЮ</button>
-        <div id="board-container">
-            <div id="board"></div>
-        </div>
-        <div class="score-board" id="score-board"></div>
-    </div>
+    <!-- ТАБЛО ОЧКОВ -->
+    <div class="score-board" id="score-board"></div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ВОПРОСА -->
+    <!-- ОКНО ВОПРОСА -->
     <div id="overlay">
         <div id="question-text"></div>
         <div id="answer-text"></div>
-        
-        <div style="display: flex; gap: 15px; justify-content: center; width: 100%; max-width: 600px;">
-            <button id="letter-btn" class="menu-btn" style="background: #1e90ff; color: #fff; font-size:20px;" onclick="revealNextLetter()">Открыть букву</button>
-            <button id="show-btn" class="menu-btn" style="font-size:20px;" onclick="showAnswer()">Узнать ответ</button>
+        <div>
+            <button id="letter-btn" class="menu-btn" style="background:#1e90ff; color:#fff;" onclick="revealNextLetter()">Открыть букву</button>
+            <button id="show-btn" class="menu-btn" onclick="showAnswer()">Узнать ответ</button>
         </div>
-        
-        <!-- НАЧИСЛЕНИЕ БАЛЛОВ -->
         <div class="admin-section">
-            <div class="admin-column">
-                <span class="admin-team-title">Команда 1</span>
-                <button class="admin-btn plus" onclick="awardPoints(1)">+ Баллы</button>
-                <button class="admin-btn minus" onclick="deductPoints(1)">- Баллы</button>
-            </div>
-            <div class="admin-column">
-                <span class="admin-team-title">Команда 2</span>
-                <button class="admin-btn plus" onclick="awardPoints(2)">+ Баллы</button>
-                <button class="admin-btn minus" onclick="deductPoints(2)">- Баллы</button>
-            </div>
-            <div class="admin-column">
-                <span class="admin-team-title">Команда 3</span>
-                <button class="admin-btn plus" onclick="awardPoints(3)">+ Баллы</button>
-                <button class="admin-btn minus" onclick="deductPoints(3)">- Баллы</button>
-            </div>
-            <div class="admin-column">
-                <span class="admin-team-title">Команда 4</span>
-                <button class="admin-btn plus" onclick="awardPoints(4)">+ Баллы</button>
-                <button class="admin-btn minus" onclick="deductPoints(4)">- Баллы</button>
-            </div>
+            <div>Команда 1:<br><button class="admin-btn plus" onclick="awardPoints(1)">+</button><button class="admin-btn minus" onclick="deductPoints(1)">-</button></div>
+            <div>Команда 2:<br><button class="admin-btn plus" onclick="awardPoints(2)">+</button><button class="admin-btn minus" onclick="deductPoints(2)">-</button></div>
+            <div>Команда 3:<br><button class="admin-btn plus" onclick="awardPoints(3)">+</button><button class="admin-btn minus" onclick="deductPoints(3)">-</button></div>
+            <div>Команда 4:<br><button class="admin-btn plus" onclick="awardPoints(4)">+</button><button class="admin-btn minus" onclick="deductPoints(4)">-</button></div>
         </div>
-
-        <button id="skip-btn" class="menu-btn" style="background:#333; color:#fff; margin-top:25px;" onclick="closeQuestion()">Никто не ответил / Закрыть</button>
+        <button class="menu-btn" style="background:#333; color:#fff; margin-top:30px;" onclick="closeQuestion()">Закрыть вопрос</button>
     </div>
 
-        <script>
-        // =========================================================================
-        // МЕСТО ДЛЯ ВАШИХ ВОПРОСОВ И ОТВЕТОВ (БАЗА ДАННЫХ ИГРЫ)
-        // =========================================================================
+    <script>
         let gameData = [
             {
                 cat: "БЬЮТИ И МОДА",
@@ -193,49 +95,16 @@
         ];
 
         let teams = [
-            { name: "Команда 1", score: 0 },
-            { name: "Команда 2", score: 0 },
-            { name: "Команда 3", score: 0 },
-            { name: "Команда 4", score: 0 }
+            { name: "Команда 1", score: 0 }, { name: "Команда 2", score: 0 },
+            { name: "Команда 3", score: 0 }, { name: "Команда 4", score: 0 }
         ];
 
-        let used = new Set();
-        let curPts = 0;
-        let currentActiveCellId = null;
-        let currentFullAnswer = "";
-        let revealedLettersCount = 0;
-
-        function unlockAudio() {
-            document.getElementById('start-overlay').style.display = 'none';
-            document.getElementById('menu-screen').style.display = 'flex';
-        }
-
-        function openMenu() {
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById('menu-screen').style.display = 'flex';
-            document.getElementById('cont-btn').style.display = 'block';
-        }
-
-        function continueGame() {
-            document.getElementById('menu-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'flex';
-        }
-
-        function startNewGame() {
-            used.clear();
-            teams.forEach(t => t.score = 0);
-            document.getElementById('menu-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'flex';
-            document.getElementById('cont-btn').style.display = 'block';
-            buildBoard();
-            updateScores();
-        }
+        let used = new Set(), curPts = 0, currentActiveCellId = null;
+        let currentFullAnswer = "", revealedLettersCount = 0;
 
         function buildBoard() {
             let board = document.getElementById('board');
             board.innerHTML = "";
-            if (gameData.length === 0) return;
-            
             let numQs = gameData[0].qs.length;
             board.style.gridTemplateColumns = `280px repeat(${numQs}, 1fr)`;
             
@@ -251,12 +120,7 @@
                     let cellId = `${cIdx}-${qIdx}`;
                     cell.id = `cell-${cellId}`;
                     cell.innerText = qObj.p;
-                    
-                    if (used.has(cellId)) {
-                        cell.classList.add('used');
-                    } else {
-                        cell.onclick = () => openQuestion(cellId, qObj.q, qObj.a, qObj.p);
-                    }
+                    cell.onclick = () => openQuestion(cellId, qObj.q, qObj.a, qObj.p);
                     board.appendChild(cell);
                 });
             });
@@ -269,12 +133,11 @@
                 let badge = document.createElement('div');
                 badge.className = "team-badge";
                 badge.innerHTML = `
-                    <div class="score-name">${t.name}</div> 
-                    <div class="score-val">${t.score}</div> 
-                    <div class="score-controls"> 
-                        <button class="btn-sm" onclick="adjustScoreDirectly(${idx}, 100)">+100</button> 
-                        <button class="btn-sm" onclick="adjustScoreDirectly(${idx}, -100)">-100</button> 
-                    </div>`;
+                    <div>${t.name}</div>
+                    <div class="score-val">${t.score}</div>
+                    <button class="btn-sm" onclick="adjustScoreDirectly(${idx}, 100)">+100</button>
+                    <button class="btn-sm" onclick="adjustScoreDirectly(${idx}, -100)">-100</button>
+                `;
                 sb.appendChild(badge);
             });
         }
@@ -291,68 +154,56 @@
             revealedLettersCount = 0;
             document.getElementById('question-text').innerText = qText;
             renderMaskedAnswer();
-            document.getElementById('show-btn').style.display = "block";
-            document.getElementById('letter-btn').style.display = "block";
+            document.getElementById('show-btn').style.display = "inline-block";
+            document.getElementById('letter-btn').style.display = "inline-block";
             document.getElementById('overlay').style.display = "flex";
         }
 
         function renderMaskedAnswer() {
-            let masked = "";
-            let currentLetterIdx = 0;
+            let masked = "", currentLetterIdx = 0;
             for (let i = 0; i < currentFullAnswer.length; i++) {
                 let char = currentFullAnswer[i];
-                if (char === " " || char === "-") {
-                    masked += char;
-                } else {
-                    if (currentLetterIdx < revealedLettersCount) {
-                        masked += char;
-                    } else {
-                        masked += "*";
-                    }
-                    currentLetterIdx++;
-                }
-            }
-            document.getElementById('answer-text').innerText = "ОТВЕТ: " + masked;
-        }
-
-        function revealNextLetter() {
-            let totalLetters = currentFullAnswer.replace(/[\s-]/g, "").length;
-            if (revealedLettersCount < totalLetters) {
-                revealedLettersCount++;
-                renderMaskedAnswer();
-            }
-            if (revealedLettersCount >= totalLetters) {
-                document.getElementById('letter-btn').style.display = "none";
-                document.getElementById('show-btn').style.display = "none";
-            }
-        }
-
-        function showAnswer() {
-            document.getElementById('answer-text').innerText = "ОТВЕТ: " + currentFullAnswer;
-            document.getElementById('show-btn').style.display = "none";
-            document.getElementById('letter-btn').style.display = "none";
-        }
-
-        function awardPoints(teamNum) {
-            teams[teamNum - 1].score += curPts;
-            updateScores();
-            closeQuestion();
-        }
-
-        function deductPoints(teamNum) {
-            teams[teamNum - 1].score -= curPts;
-            updateScores();
-        }
-
-        function closeQuestion() {
-            if (currentActiveCellId) {
-                used.add(currentActiveCellId);
-                let cell = document.getElementById(`cell-${currentActiveCellId}`);
-                if (cell) {
-                    cell.classList.add('used');
-                    cell.onclick = null;
-                }
-                }document.getElementById('overlay').style.display = "none";
+                if (char === " " || char === "-") { masked += char; }
+else {
+masked += (currentLetterIdx < revealedLettersCount) ? char : "*";
+currentLetterIdx++;
 }
-
-
+}
+document.getElementById('answer-text').innerText = "ОТВЕТ: " + masked;
+}
+function revealNextLetter() {
+let totalLetters = currentFullAnswer.replace(/[\s-]/g, "").length;
+if (revealedLettersCount < totalLetters) {
+revealedLettersCount++;
+renderMaskedAnswer();
+}
+if (revealedLettersCount >= totalLetters) {
+document.getElementById('letter-btn').style.display = "none";
+document.getElementById('show-btn').style.display = "none";
+}
+}
+function showAnswer() {
+document.getElementById('answer-text').innerText = "ОТВЕТ: " + currentFullAnswer;
+document.getElementById('show-btn').style.display = "none";
+document.getElementById('letter-btn').style.display = "none";
+}
+function awardPoints(teamNum) {
+teams[teamNum - 1].score += curPts;
+updateScores();
+closeQuestion();
+}
+function deductPoints(teamNum) {
+teams[teamNum - 1].score -= curPts;
+updateScores();
+}
+function closeQuestion() {
+if (currentActiveCellId) {
+used.add(currentActiveCellId);
+let cell = document.getElementById(cell-${currentActiveCellId});
+if (cell) { cell.classList.add('used'); cell.onclick = null; }
+}
+document.getElementById('overlay').style.display = "none";
+}
+// Автозапуск игры при загрузке страницы
+buildBoard();
+updateScores();
