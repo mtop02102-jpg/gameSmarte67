@@ -192,7 +192,6 @@
             }
         ];
 
-        // НАСТРОЙКА КОМАНД
         let teams = [
             { name: "Команда 1", score: 0 },
             { name: "Команда 2", score: 0 },
@@ -351,6 +350,9 @@
                 let cell = document.getElementById(`cell-${currentActiveCellId}`);
                 if (cell) {
                     cell.classList.add('used');
+                    cell.onclick = null;
+                }
+                }document.getElementById('overlay').style.display = "none";
+}
 
 
-    
