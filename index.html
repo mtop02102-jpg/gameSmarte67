@@ -12,8 +12,8 @@
         .score-board { display: flex; gap: 20px; justify-content: center; margin-top: 30px; }
         .team-badge { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px solid gold; min-width: 150px; }
         .score-val { font-size: 36px; font-weight: bold; color: gold; margin: 5px 0; }
-        .btn-sm { background: gold; border: none; font-weight: bold; padding: 5px 10px; cursor: pointer; margin: 2px; }
-        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .btn-sm { background: gold; color: black; border: none; font-weight: bold; padding: 5px 10px; cursor: pointer; margin: 2px; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; z-index: 2000; }
         #question-text { font-size: 36px; margin-bottom: 20px; max-width: 900px; }
         #answer-text { font-size: 28px; color: gold; margin-bottom: 20px; letter-spacing: 2px; }
         .menu-btn { background: gold; color: #000; padding: 10px 20px; font-size: 18px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
@@ -51,7 +51,7 @@
     </div>
 
     <script>
-        let gameData = [
+        var gameData = [
             {
                 cat: "БЬЮТИ И МОДА",
                 qs: [
@@ -94,77 +94,103 @@
             }
         ];
 
-        let teams = [
-            { name: "Команда 1", score: 0 }, { name: "Команда 2", score: 0 },
-            { name: "Команда 3", score: 0 }, { name: "Команда 4", score: 0 }
+        var teams = [
+            { name: "Команда 1", score: 0 },
+            { name: "Команда 2", score: 0 },
+            { name: "Команда 3", score: 0 },
+            { name: "Команда 4", score: 0 }
         ];
 
-        let used = new Set(), curPts = 0, currentActiveCellId = null;
-        let currentFullAnswer = "", revealedLettersCount = 0;
+        var used = new Set();
+        var curPts = 0;
+        var currentActiveCellId = null;
+        var currentFullAnswer = "";
+        var revealedLettersCount = 0;
 
         function buildBoard() {
-            let board = document.getElementById('board');
+            var board = document.getElementById('board');
             board.innerHTML = "";
-            let numQs = gameData[0].qs.length;
-            board.style.gridTemplateColumns = `280px repeat(${numQs}, 1fr)`;
+            if (gameData.length === 0) return;
             
-            gameData.forEach((catObj, cIdx) => {
-                let catCell = document.createElement('div');
+            var numQs = gameData[0].qs.length;
+            board.style.gridTemplateColumns = "280px repeat(" + numQs + ", 1fr)";
+            
+            gameData.forEach(function(catObj, cIdx) {
+                var catCell = document.createElement('div');
                 catCell.className = "cell category";
                 catCell.innerText = catObj.cat;
                 board.appendChild(catCell);
                 
-                catObj.qs.forEach((qObj, qIdx) => {
-                    let cell = document.createElement('div');
+                catObj.qs.forEach(function(qObj, qIdx) {
+                    var cell = document.createElement('div');
                     cell.className = "cell";
-                    let cellId = `${cIdx}-${qIdx}`;
-                    cell.id = `cell-${cellId}`;
+                    var cellId = cIdx + "-" + qIdx;
+                    cell.id = "cell-" + cellId;
                     cell.innerText = qObj.p;
-                    cell.onclick = () => openQuestion(cellId, qObj.q, qObj.a, qObj.p);
+                    
+                    if (used.has(cellId)) {
+                        cell.classList.add('used');
+                    } else {
+                        cell.onclick = function() { openQuestion(cellId, qObj.q, qObj.a, qObj.p); };
+                    }
                     board.appendChild(cell);
                 });
             });
         }
 
         function updateScores() {
-            let sb = document.getElementById('score-board');
+            var sb = document.getElementById('score-board');
             sb.innerHTML = "";
-            teams.forEach((t, idx) => {
-                let badge = document.createElement('div');
+            teams.forEach(function(t, idx) {
+                var badge = document.createElement('div');
                 badge.className = "team-badge";
-                badge.innerHTML = `
-                    <div>${t.name}</div>
-                    <div class="score-val">${t.score}</div>
-                    <button class="btn-sm" onclick="adjustScoreDirectly(${idx}, 100)">+100</button>
-                    <button class="btn-sm" onclick="adjustScoreDirectly(${idx}, -100)">-100</button>
-                `;
-                sb.appendChild(badge);
-            });
-        }
-
-        function adjustScoreDirectly(tIdx, val) {
-            teams[tIdx].score += val;
-            updateScores();
-        }
-
-        function openQuestion(cellId, qText, aText, points) {
-            currentActiveCellId = cellId;
-            curPts = points;
-            currentFullAnswer = aText;
-            revealedLettersCount = 0;
-            document.getElementById('question-text').innerText = qText;
-            renderMaskedAnswer();
-            document.getElementById('show-btn').style.display = "inline-block";
-            document.getElementById('letter-btn').style.display = "inline-block";
-            document.getElementById('overlay').style.display = "flex";
-        }
-
-        function renderMaskedAnswer() {
-            let masked = "", currentLetterIdx = 0;
-            for (let i = 0; i < currentFullAnswer.length; i++) {
-                let char = currentFullAnswer[i];
-                if (char === " " || char === "-") { masked += char; }
-else {
+                
+                var nameDiv = document.createElement('div');
+                nameDiv.innerText = t.name;
+                badge.appendChild(nameDiv);
+                
+                var valDiv = document.createElement('div');
+                valDiv.className = "score-val";
+                valDiv.innerText = t.score;
+                badge.appendChild(valDiv);
+                
+                var btnPlus = document.createElement('button');
+                btnPlus.className = "btn-sm";
+                btnPlus.innerText = "+100";
+                btnPlus.onclick = function() { adjustScoreDirectly(idx, 100); };
+                badge.appendChild(btnPlus);
+                
+                var btnMinus = document.createElement('button');
+                btnMinus.className = "btn-sm";
+                btnMinus.innerText = "-100";
+                btnMinus.onclick = function() { adjustScoreDirectly(idx, -100); };
+                badge.appendChild(btnMinus);
+sb.appendChild(badge);
+});
+}
+function adjustScoreDirectly(tIdx, val) {
+teams[tIdx].score += val;
+updateScores();
+}
+function openQuestion(cellId, qText, aText, points) {
+currentActiveCellId = cellId;
+curPts = points;
+currentFullAnswer = aText;
+revealedLettersCount = 0;
+document.getElementById('question-text').innerText = qText;
+renderMaskedAnswer();
+document.getElementById('show-btn').style.display = "inline-block";
+document.getElementById('letter-btn').style.display = "inline-block";
+document.getElementById('overlay').style.display = "flex";
+}
+function renderMaskedAnswer() {
+var masked = "";
+var currentLetterIdx = 0;
+for (var i = 0; i < currentFullAnswer.length; i++) {
+var char = currentFullAnswer[i];
+if (char === " " || char === "-") {
+masked += char;
+} else {
 masked += (currentLetterIdx < revealedLettersCount) ? char : "*";
 currentLetterIdx++;
 }
@@ -172,7 +198,7 @@ currentLetterIdx++;
 document.getElementById('answer-text').innerText = "ОТВЕТ: " + masked;
 }
 function revealNextLetter() {
-let totalLetters = currentFullAnswer.replace(/[\s-]/g, "").length;
+var totalLetters = currentFullAnswer.replace(/[\s-]/g, "").length;
 if (revealedLettersCount < totalLetters) {
 revealedLettersCount++;
 renderMaskedAnswer();
@@ -199,11 +225,14 @@ updateScores();
 function closeQuestion() {
 if (currentActiveCellId) {
 used.add(currentActiveCellId);
-let cell = document.getElementById(cell-${currentActiveCellId});
-if (cell) { cell.classList.add('used'); cell.onclick = null; }
+var cell = document.getElementById("cell-" + currentActiveCellId);
+if (cell) {
+cell.classList.add('used');
+cell.onclick = null;
+}
 }
 document.getElementById('overlay').style.display = "none";
 }
-// Автозапуск игры при загрузке страницы
 buildBoard();
 updateScores();
+                
