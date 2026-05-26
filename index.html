@@ -145,7 +145,7 @@
         <button id="skip-btn" class="menu-btn" style="background:#333; color:#fff; margin-top:25px;" onclick="closeQuestion()">Никто не ответил / Закрыть</button>
     </div>
 
-    <script>
+        <script>
         // =========================================================================
         // МЕСТО ДЛЯ ВАШИХ ВОПРОСОВ И ОТВЕТОВ (БАЗА ДАННЫХ ИГРЫ)
         // =========================================================================
@@ -235,7 +235,7 @@
         function buildBoard() {
             let board = document.getElementById('board');
             board.innerHTML = "";
-            if(gameData.length === 0) return;
+            if (gameData.length === 0) return;
             
             let numQs = gameData[0].qs.length;
             board.style.gridTemplateColumns = `280px repeat(${numQs}, 1fr)`;
@@ -253,7 +253,7 @@
                     cell.id = `cell-${cellId}`;
                     cell.innerText = qObj.p;
                     
-                    if(used.has(cellId)) {
+                    if (used.has(cellId)) {
                         cell.classList.add('used');
                     } else {
                         cell.onclick = () => openQuestion(cellId, qObj.q, qObj.a, qObj.p);
@@ -346,10 +346,11 @@
         }
 
         function closeQuestion() {
-            if(currentActiveCellId) {
+            if (currentActiveCellId) {
                 used.add(currentActiveCellId);
                 let cell = document.getElementById(`cell-${currentActiveCellId}`);
-                if(cell) {
+                if (cell) {
                     cell.classList.add('used');
 
 
+    
